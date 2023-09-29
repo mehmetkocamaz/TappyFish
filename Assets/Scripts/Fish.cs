@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,11 +13,18 @@ public class Fish : MonoBehaviour
     int maxAngle = 20;
     int minAngle = -60;
     public Score score;
+    bool touchedGround;
+    public GameManager gameManager;
+    public Sprite fishDied;
+    SpriteRenderer _sp;
+    Animator _anim;
 
     // Start is called before the first frame update
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _sp = GetComponent<SpriteRenderer>();
+        _anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -32,7 +40,7 @@ public class Fish : MonoBehaviour
 
     void FishSwim()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && GameManager.gameOver == false)
         {
             _rb.velocity = Vector2.zero;
             _rb.velocity = new Vector2(_rb.velocity.x, _speed);
@@ -56,7 +64,10 @@ public class Fish : MonoBehaviour
             }
         }
 
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        if (touchedGround == false)
+        {
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -66,5 +77,37 @@ public class Fish : MonoBehaviour
             Debug.Log("Score!");
             score.Scored();
         }
+        else if (collision.CompareTag("Column"))
+        {
+            // game over
+            gameManager.GameOver();
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            if (GameManager.gameOver == false)
+            {
+               // game over
+                gameManager.GameOver();
+                GameOver();
+            }
+            else
+            {
+                // game over (fish)
+                GameOver();
+            }
+            Debug.Log("collision with ground");
+        }
+    }
+
+    void GameOver()
+    {
+        touchedGround = true;
+        transform.rotation = Quaternion.Euler(0, 0, -90);
+        _sp.sprite = fishDied;
+        _anim.enabled = false;
     }
 }
