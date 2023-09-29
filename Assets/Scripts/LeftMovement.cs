@@ -39,7 +39,7 @@ public class LeftMovement : MonoBehaviour
         }
         else if (gameObject.CompareTag("Obstacle"))
         {
-            if (true) // obstacle destroy for performance 
+            if (transform.position.x < GameManager.bottomLeft.x - obstacleWidth) // obstacle destroy for performance 
             {
                 Destroy(gameObject);
             }
